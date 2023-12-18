@@ -4,9 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "update-all": "bun run src/index.ts update"
+    "update-all": "bun run src/index.ts update",
+    "check": "bunx @biomejs/biome check --apply src/"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.4.1",
     "@types/dockerode": "^3.3.23",
     "bun-types": "latest"
   },
