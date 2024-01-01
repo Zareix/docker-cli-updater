@@ -1,11 +1,19 @@
 import { confirm, select } from "@inquirer/prompts";
 import chalk from "chalk-template";
+import { Command, Option } from "commander";
 import ora from "ora";
 import { docker } from "../docker";
 import { getNewerImage } from "../image";
 import { updateService } from "../service";
 
-export const list = async () => {
+export const list = async (
+	name: string,
+	options: Option[],
+	command: Command,
+) => {
+	console.log(name);
+	console.log(options);
+	console.log(command);
 	const services = await Promise.all(
 		(await docker.listServices()).map(async (c) => ({
 			...c,
@@ -30,9 +38,9 @@ export const list = async () => {
 	const serviceToUpdate = await select({
 		message: "Select a service to update",
 		choices: services.map((c) => ({
-			name: chalk`${c.Spec?.Name}${
-				c.newImage ? " {yellow (Update available)}" : ""
-			}`,
+			name: chalk`${c.Spec?.Name}{yellow ${
+				c.newImage ? " (Update available)" : ""
+			}}`,
 			value: c,
 			description: `Image: ${
 				c.Spec?.TaskTemplate?.ContainerSpec?.Image.split("@")[0]

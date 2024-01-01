@@ -5,9 +5,11 @@ import { updateAll } from "./commands/updateAll";
 const program = new Command();
 
 program
-	.command("update")
-	.description("Update all running services")
-	.action(updateAll);
+	.name("docker-swarm-updater")
+	.description("CLI to update services in a docker swarm cluster")
+	.version("0.1.0");
+
+program.command("update").description("Update all services").action(updateAll);
 
 program
 	.command("list")
@@ -17,4 +19,4 @@ program
 	.alias("ls")
 	.action(list);
 
-program.parse();
+program.parseAsync();
