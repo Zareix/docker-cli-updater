@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "bun run src/index.ts",
+    "list": "bun run src/index.ts list",
     "update-all": "bun run src/index.ts update",
     "check": "bunx @biomejs/biome check --apply src/",
     "build": "bun build --target=bun --outfile=./dist/index.js src/index.ts"
@@ -17,6 +18,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@commander-js/extra-typings": "^11.1.0",
     "@inquirer/prompts": "^3.3.0",
     "chalk": "^5.3.0",
     "chalk-template": "^1.1.0",

@@ -12,4 +12,4 @@ RUN chmod 755 $REGCTL_BIN
 
 COPY . .
 
-CMD [ "bun", "run", "update-all" ]
+CMD [ "bun", "run", "update", "--all" ]

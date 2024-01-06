@@ -1,5 +1,5 @@
 import { Service } from "dockerode";
-import { docker } from "./docker";
+import { docker } from ".";
 import { getNewerImage } from "./image";
 
 type UpdateResult =

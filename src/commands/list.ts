@@ -1,19 +1,16 @@
-import { confirm, select } from "@inquirer/prompts";
+import { confirm } from "@inquirer/prompts";
+import { checkbox } from "@inquirer/prompts";
 import chalk from "chalk-template";
-import { Command, Option } from "commander";
 import ora from "ora";
 import { docker } from "../docker";
-import { getNewerImage } from "../image";
-import { updateService } from "../service";
+import { getNewerImage } from "../docker/image";
+import { updateService } from "../docker/service";
 
-export const list = async (
-	name: string,
-	options: Option[],
-	command: Command,
-) => {
-	console.log(name);
-	console.log(options);
-	console.log(command);
+export const list = async () => {
+	const spinner = ora({
+		text: chalk`{blue Loading services...}`,
+	});
+	spinner.start();
 	const services = await Promise.all(
 		(await docker.listServices()).map(async (c) => ({
 			...c,
@@ -29,13 +26,14 @@ export const list = async (
 		}
 		return a.Spec?.Name?.localeCompare(b.Spec?.Name) ?? 0;
 	});
+	spinner.stop();
 
 	if (services.length === 0) {
 		console.log(chalk`{red No services running}`);
 		return;
 	}
 
-	const serviceToUpdate = await select({
+	const servicesToUpdate = await checkbox({
 		message: "Select a service to update",
 		choices: services.map((c) => ({
 			name: chalk`${c.Spec?.Name}{yellow ${
@@ -48,22 +46,29 @@ export const list = async (
 		})),
 		loop: false,
 	});
-	const spinner = ora(
-		chalk`Updating service {yellow ${serviceToUpdate.Spec?.Name}}...`,
-	);
-	spinner.start();
-	const serviceUpdated = await updateService(serviceToUpdate.ID);
-	switch (serviceUpdated.status) {
-		case "updated":
-			spinner.succeed("Service updated!");
-			break;
-		case "failed":
-			spinner.fail("Failed to update service");
-			break;
-		case "up-to-date":
-			spinner.info("Service is up to date");
-			break;
+	for (const service of servicesToUpdate) {
+		const spinner = ora(
+			chalk`Updating service {yellow ${service.Spec?.Name}}...`,
+		);
+		spinner.start();
+		const serviceUpdated = await updateService(service.ID);
+		switch (serviceUpdated.status) {
+			case "updated":
+				spinner.succeed(chalk`Service {yellow ${service.Spec?.Name}} updated`);
+				break;
+			case "failed":
+				spinner.fail(
+					chalk`Failed to update service {yellow ${service.Spec?.Name}}`,
+				);
+				break;
+			case "up-to-date":
+				spinner.info(
+					chalk`Service {yellow ${service.Spec?.Name}} is up to date`,
+				);
+				break;
+		}
 	}
+
 	const updateAnother = await confirm({
 		message: "Update another service ?",
 	});
