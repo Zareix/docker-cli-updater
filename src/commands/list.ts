@@ -46,6 +46,10 @@ export const list = async () => {
 		})),
 		loop: false,
 	});
+	if (servicesToUpdate.length === 0) {
+		console.log(chalk`{red No service selected}`);
+		return;
+	}
 	for (const service of servicesToUpdate) {
 		const spinner = ora(
 			chalk`Updating service {yellow ${service.Spec?.Name}}...`,
