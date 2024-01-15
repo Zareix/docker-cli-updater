@@ -21,7 +21,7 @@ const updateService = async (
 	const service = await docker.getService(serviceId).inspect();
 
 	const currentImage = service.Spec?.TaskTemplate?.ContainerSpec?.Image;
-	let newImage;
+	let newImage: string | null;
 	try {
 		newImage = await getNewerImage(currentImage);
 	} catch (e) {

@@ -1,7 +1,7 @@
 import { Command } from "@commander-js/extra-typings";
+import chalk from "chalk";
 import { list } from "./commands/list";
 import { updateAll, updateSingle } from "./commands/update";
-import chalk from "chalk";
 
 const program = new Command();
 
