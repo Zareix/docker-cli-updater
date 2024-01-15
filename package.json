@@ -10,7 +10,7 @@
     "build": "bun build --target=bun --outfile=./dist/index.js src/index.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.5.1",
+    "@biomejs/biome": "1.5.2",
     "@types/dockerode": "^3.3.23",
     "bun-types": "latest"
   },
