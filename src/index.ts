@@ -6,16 +6,16 @@ import { updateAll, updateSingle } from "./commands/update";
 const program = new Command();
 
 program
-	.name("docker-swarm-updater")
-	.description("CLI to update services in a docker swarm cluster")
+	.name("docker-cli-updater")
+	.description("CLI to update containers/services in a docker and docker-swarm")
 	.version("0.1.0");
 
 program
 	.command("update")
 	.description("Update services")
-	.option("-a, --all", "Update all services")
+	.option("-a, --all", "Update all containers/services")
 	.option("-s, --silent", "Silent mode (don't use any logger)")
-	.argument("[service_name]", "Name of service to update")
+	.argument("[container_name]", "Name of container/service to update")
 	.action(async (serviceName, options) => {
 		if (options.all) {
 			if (serviceName) {

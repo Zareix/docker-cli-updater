@@ -2,9 +2,8 @@ import { confirm } from "@inquirer/prompts";
 import { checkbox } from "@inquirer/prompts";
 import chalk from "chalk-template";
 import ora from "ora";
-import { docker } from "../docker";
+import { dockerProvider } from "../docker";
 import { getNewerImage } from "../docker/image";
-import { updateService } from "../docker/service";
 
 export const list = async () => {
 	const spinner = ora({
@@ -12,9 +11,9 @@ export const list = async () => {
 	});
 	spinner.start();
 	const services = await Promise.all(
-		(await docker.listServices()).map(async (c) => ({
+		(await dockerProvider.listContainers()).map(async (c) => ({
 			...c,
-			newImage: await getNewerImage(c.Spec?.TaskTemplate?.ContainerSpec?.Image),
+			newImage: await getNewerImage(c.image),
 		})),
 	);
 	services.sort((a, b) => {
@@ -24,7 +23,7 @@ export const list = async () => {
 		if (!a.newImage && b.newImage) {
 			return 1;
 		}
-		return a.Spec?.Name?.localeCompare(b.Spec?.Name) ?? 0;
+		return a.name?.localeCompare(b.name ?? "") ?? 0;
 	});
 	spinner.stop();
 
@@ -36,13 +35,9 @@ export const list = async () => {
 	const servicesToUpdate = await checkbox({
 		message: "Select a service to update",
 		choices: services.map((c) => ({
-			name: chalk`${c.Spec?.Name}{yellow ${
-				c.newImage ? " (Update available)" : ""
-			}}`,
+			name: chalk`${c.name}{yellow ${c.newImage ? " (Update available)" : ""}}`,
 			value: c,
-			description: `Image: ${
-				c.Spec?.TaskTemplate?.ContainerSpec?.Image.split("@")[0]
-			}`,
+			description: `Image: ${c.image.split("@")[0]}`,
 		})),
 		loop: false,
 	});
@@ -51,24 +46,18 @@ export const list = async () => {
 		return;
 	}
 	for (const service of servicesToUpdate) {
-		const spinner = ora(
-			chalk`Updating service {yellow ${service.Spec?.Name}}...`,
-		);
+		const spinner = ora(chalk`Updating service {yellow ${service.name}}...`);
 		spinner.start();
-		const serviceUpdated = await updateService(service.ID);
+		const serviceUpdated = await dockerProvider.updateContainer(service.id);
 		switch (serviceUpdated.status) {
 			case "updated":
-				spinner.succeed(chalk`Service {yellow ${service.Spec?.Name}} updated`);
+				spinner.succeed(chalk`Service {yellow ${service.name}} updated`);
 				break;
 			case "failed":
-				spinner.fail(
-					chalk`Failed to update service {yellow ${service.Spec?.Name}}`,
-				);
+				spinner.fail(chalk`Failed to update service {yellow ${service.name}}`);
 				break;
 			case "up-to-date":
-				spinner.info(
-					chalk`Service {yellow ${service.Spec?.Name}} is up to date`,
-				);
+				spinner.info(chalk`Service {yellow ${service.name}} is up to date`);
 				break;
 		}
 	}

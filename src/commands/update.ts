@@ -1,7 +1,6 @@
 import chalk from "chalk-template";
 import ora from "ora";
-import { docker } from "../docker";
-import { updateService } from "../docker/service";
+import { dockerProvider } from "../docker";
 import { logger } from "../logger";
 
 const update = async (serviceName: string, serviceId: string) => {
@@ -9,7 +8,7 @@ const update = async (serviceName: string, serviceId: string) => {
 		text: chalk`Checking {yellow ${serviceName}}...`,
 	});
 	status.start();
-	const serviceUpdated = await updateService(serviceId);
+	const serviceUpdated = await dockerProvider.updateContainer(serviceId);
 	switch (serviceUpdated.status) {
 		case "updated":
 			status.succeed(chalk`Service {yellow ${serviceName}} updated!`);
@@ -31,18 +30,18 @@ export const updateAll = async (options: UpdateOptions) => {
 	const updatedServices = [];
 	const failedUpdates = [];
 
-	const services = (await docker.listServices()).sort(
-		(a, b) => a.Spec?.Name?.localeCompare(b.Spec?.Name) ?? 0,
+	const services = (await dockerProvider.listContainers()).sort(
+		(a, b) => a.name.localeCompare(b.name) ?? 0,
 	);
 
 	console.log(chalk`Found {blue ${services.length}} services`);
 	for (const service of services) {
-		const serviceName = service.Spec?.Name;
+		const serviceName = service.name;
 		if (!serviceName) {
 			console.log(chalk`{red Service has no name}`);
 			continue;
 		}
-		const res = await update(serviceName, service.ID);
+		const res = await update(serviceName, service.id);
 		switch (res.status) {
 			case "updated":
 				updatedServices.push(serviceName);
@@ -63,9 +62,9 @@ export const updateSingle = async (
 	serviceName: string,
 	options: UpdateOptions,
 ) => {
-	const serviceId = (await docker.listServices()).find(
-		(s) => s.Spec?.Name === serviceName,
-	)?.ID;
+	const serviceId = (await dockerProvider.listContainers()).find(
+		(s) => s.name === serviceName,
+	)?.id;
 	if (!serviceId) {
 		console.log(chalk`{red Service {yellow ${serviceName}} not found} `);
 		return;

@@ -1,12 +1,13 @@
 {
-  "name": "docker-swarm-updater",
+  "name": "docker-cli-updater",
   "module": "index.ts",
   "type": "module",
   "scripts": {
     "start": "bun run src/index.ts",
     "list": "bun run src/index.ts list",
     "update-all": "bun run src/index.ts update",
-    "check": "bunx @biomejs/biome check --apply src/",
+    "test": "bun test --coverage",
+    "check": "bunx @biomejs/biome check --apply src/ && bun run test",
     "build": "bun build --target=bun --outfile=./dist/index.js src/index.ts"
   },
   "devDependencies": {
