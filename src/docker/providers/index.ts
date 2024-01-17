@@ -14,19 +14,21 @@ type UpdateResult =
 			status: "up-to-date";
 	  };
 
+type Image = {
+	tag: string;
+	digest: string;
+};
+
 type Container = {
 	id: string;
 	name: string;
-	image: {
-		tag: string;
-		digest: string;
-	};
+	image: Image;
 };
 
 type DockerProvider = {
 	listContainers: () => Promise<Container[]>;
 	updateContainer: (id: string) => Promise<UpdateResult>;
-	getNewerImage: (image: string) => Promise<string | null>;
+	getNewerImage: (image: Image) => Promise<string | null>;
 	containerType: string;
 };
 

@@ -12,7 +12,10 @@ export const list = async () => {
 	const services = await Promise.all(
 		(await dockerProvider.listContainers()).map(async (c) => ({
 			...c,
-			newImage: await dockerProvider.getNewerImage(c.image),
+			newImage: await dockerProvider.getNewerImage({
+				tag: c.image.tag,
+				digest: c.image.digest,
+			}),
 		})),
 	);
 	services.sort((a, b) => {
@@ -36,7 +39,7 @@ export const list = async () => {
 		choices: services.map((c) => ({
 			name: chalk`${c.name}{yellow ${c.newImage ? " (Update available)" : ""}}`,
 			value: c,
-			description: `Image: ${c.image.split("@")[0]}`,
+			description: `Image: ${c.image.tag}`,
 		})),
 		loop: false,
 	});

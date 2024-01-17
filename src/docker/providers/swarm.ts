@@ -48,24 +48,20 @@ const updateService: DockerProvider["updateContainer"] = async (serviceId) => {
 	return { status: "updated", newImage };
 };
 
-const getNewerImage: DockerProvider["getNewerImage"] = async (
-	image: string,
-) => {
-	const [imageTag, currentImageDigest] = image.split("@");
-
+const getNewerImage: DockerProvider["getNewerImage"] = async (image) => {
 	const proc = Bun.spawn([
 		process.env.REGCTL_BIN ?? "regctl",
 		"image",
 		"digest",
-		imageTag,
+		image.tag,
 	]);
 	const response = await readableStreamToText(proc.stdout);
 	const latestImageDigest = response.trim();
 	// const imageInfo = await dockerConnection.getImage(image).inspect();
 	// const latestImageDigest =  imageInfo.RepoDigests[0].split("@")[1] // TODO Check if this is the latest image (or only local)
 
-	return currentImageDigest !== latestImageDigest
-		? `${imageTag}@${latestImageDigest}`
+	return image.digest !== latestImageDigest
+		? `${image.tag}@${latestImageDigest}`
 		: null;
 };
 

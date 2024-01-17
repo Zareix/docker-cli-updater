@@ -7,9 +7,10 @@ const updateContainer: DockerProvider["updateContainer"] = async (
 	const container = dockerConnection.getContainer(containerId);
 	const containerInfo = await container.inspect();
 
-	const newerImage = await getNewerImage(
-		`${containerInfo.Config.Image}@${containerInfo.Image}`,
-	);
+	const newerImage = await getNewerImage({
+		tag: containerInfo.Config.Image,
+		digest: containerInfo.Image,
+	});
 
 	if (newerImage) {
 		console.log("updating", containerInfo.Config.Image, "to", newerImage);
@@ -41,16 +42,13 @@ const listContainers: DockerProvider["listContainers"] = async () =>
 		})),
 	);
 
-const getNewerImage: DockerProvider["getNewerImage"] = async (
-	imageWithDigest,
-) => {
-	const [imageTag, currentImageDigest] = imageWithDigest.split("@");
+const getNewerImage: DockerProvider["getNewerImage"] = async (image) => {
 	const latestImageDigest = (
-		await dockerConnection.getImage(imageTag).inspect()
+		await dockerConnection.getImage(image.tag).inspect()
 	).Id; // TODO Check if this is the latest image (or only local)
 
-	return currentImageDigest !== latestImageDigest
-		? `${imageTag}@${latestImageDigest}`
+	return image.digest !== latestImageDigest
+		? `${image.tag}@${latestImageDigest}`
 		: null;
 };
 
