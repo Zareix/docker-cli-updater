@@ -29,12 +29,12 @@ jobs:
       - name: Build binary for running in bun, node and all
         run: |
           bun run build:bun
-          # bun run build:node
           bun run build:compile
+        #  bun run build:node
       - name: Zip binaries for bun and node
         run: |
           tar -czvf docker-cli-updater_bun.tar.gz bin/bun
-          tar -czvf docker-cli-updater_node.tar.gz bin/node
+        #  tar -czvf docker-cli-updater_node.tar.gz bin/node
       - name: Get version from package.json
         id: get_version
         run: |
@@ -44,8 +44,8 @@ jobs:
         with:
           files: |
             docker-cli-updater_bun.tar.gz
-            docker-cli-updater_node.tar.gz
             src/docker-cli-updater
+          # docker-cli-updater_node.tar.gz
           tag_name: ${{ github.sha }}
           name: ${{ steps.get_version.outputs.version }}
           body: |
