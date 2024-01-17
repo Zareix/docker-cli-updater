@@ -177,3 +177,5 @@ dist
 regctl
 .env
 test
+docker-cli-updater
+bin

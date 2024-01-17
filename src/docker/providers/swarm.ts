@@ -1,12 +1,17 @@
-import { DockerProvider } from ".";
-import { dockerConnection } from "..";
-import { getNewerImage } from "../image";
+import { readableStreamToText } from "bun";
+import { type DockerProvider } from "@/docker/providers";
+import { dockerConnection } from "@/docker";
 
 const listServices: DockerProvider["listContainers"] = async () => {
 	return (await dockerConnection.listServices()).map((s) => ({
 		id: s.ID,
 		name: s.Spec?.Name ?? "Unknown",
-		image: s.Spec?.TaskTemplate?.ContainerSpec?.Image ?? "Unknown",
+		image: {
+			tag:
+				s.Spec?.TaskTemplate?.ContainerSpec?.Image.split("@")[0] ?? "Unknown",
+			digest:
+				s.Spec?.TaskTemplate?.ContainerSpec?.Image.split("@")[1] ?? "Unknown",
+		},
 	}));
 };
 
@@ -43,7 +48,30 @@ const updateService: DockerProvider["updateContainer"] = async (serviceId) => {
 	return { status: "updated", newImage };
 };
 
+const getNewerImage: DockerProvider["getNewerImage"] = async (
+	image: string,
+) => {
+	const [imageTag, currentImageDigest] = image.split("@");
+
+	const proc = Bun.spawn([
+		process.env.REGCTL_BIN ?? "regctl",
+		"image",
+		"digest",
+		imageTag,
+	]);
+	const response = await readableStreamToText(proc.stdout);
+	const latestImageDigest = response.trim();
+	// const imageInfo = await dockerConnection.getImage(image).inspect();
+	// const latestImageDigest =  imageInfo.RepoDigests[0].split("@")[1] // TODO Check if this is the latest image (or only local)
+
+	return currentImageDigest !== latestImageDigest
+		? `${imageTag}@${latestImageDigest}`
+		: null;
+};
+
 export default {
 	updateContainer: updateService,
 	listContainers: listServices,
+	getNewerImage,
+	containerType: "service" as const,
 } satisfies DockerProvider;

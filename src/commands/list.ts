@@ -3,7 +3,6 @@ import { checkbox } from "@inquirer/prompts";
 import chalk from "chalk-template";
 import ora from "ora";
 import { dockerProvider } from "../docker";
-import { getNewerImage } from "../docker/image";
 
 export const list = async () => {
 	const spinner = ora({
@@ -13,7 +12,7 @@ export const list = async () => {
 	const services = await Promise.all(
 		(await dockerProvider.listContainers()).map(async (c) => ({
 			...c,
-			newImage: await getNewerImage(c.image),
+			newImage: await dockerProvider.getNewerImage(c.image),
 		})),
 	);
 	services.sort((a, b) => {

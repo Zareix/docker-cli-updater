@@ -6,9 +6,13 @@
     "start": "bun run src/index.ts",
     "list": "bun run src/index.ts list",
     "update-all": "bun run src/index.ts update",
-    "test": "bun test --coverage",
+    "test:standalone": "bun test standalone --preload ./tests/setup-standalone.ts",
+    "test:swarm": "bun test swarm --preload ./tests/setup-swarm.ts",
+    "test": "bun run test:standalone && docker swarm init && bun run test:swarm && docker swarm leave --force",
     "check": "bunx @biomejs/biome check --apply src/ && bun run test",
-    "build": "bun build --target=bun --outfile=./dist/index.js src/index.ts"
+    "build:bun": "bun build --target=bun --outdir=./bin/bun src/index.ts",
+    "build:node": "bun build --target=node --outdir=./bin/node src/index.ts",
+    "build:compile": "bun build --compile --outfile=./bin/docker-cli-updater src/index.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.2",

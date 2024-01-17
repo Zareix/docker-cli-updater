@@ -17,12 +17,17 @@ type UpdateResult =
 type Container = {
 	id: string;
 	name: string;
-	image: string;
+	image: {
+		tag: string;
+		digest: string;
+	};
 };
 
-export type DockerProvider = {
+type DockerProvider = {
 	listContainers: () => Promise<Container[]>;
 	updateContainer: (id: string) => Promise<UpdateResult>;
+	getNewerImage: (image: string) => Promise<string | null>;
+	containerType: string;
 };
 
-export { swarm, standalone };
+export { swarm, standalone, type DockerProvider };

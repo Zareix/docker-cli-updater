@@ -1,0 +1,56 @@
+name: Build docker-cli-updater binaries
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.0.23
+      - name: Restore cached dependencies
+        uses: actions/cache/restore@v3
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+      - name: Install dependencies
+        run: bun install --production
+      - name: Save dependencies cache
+        uses: actions/cache/save@v3
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+      - name: Build binary for running in bun, node and all
+        run: |
+          bun run build:bun
+          # bun run build:node
+          bun run build:compile
+      - name: Zip binaries for bun and node
+        run: |
+          tar -czvf docker-cli-updater_bun.tar.gz bin/bun
+          tar -czvf docker-cli-updater_node.tar.gz bin/node
+      - name: Get version from package.json
+        id: get_version
+        run: |
+          echo ::set-output name=version::$(node -p "require('./package.json').version")
+      - name: Publish binaries in a Github release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            docker-cli-updater_bun.tar.gz
+            docker-cli-updater_node.tar.gz
+            src/docker-cli-updater
+          tag_name: ${{ github.sha }}
+          name: ${{ steps.get_version.outputs.version }}
+          body: |
+            This is an automated release of docker-cli-updater.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
