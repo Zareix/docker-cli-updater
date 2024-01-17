@@ -45,7 +45,7 @@ const listContainers: DockerProvider["listContainers"] = async () =>
 const getNewerImage: DockerProvider["getNewerImage"] = async (image) => {
 	const latestImageDigest = (
 		await dockerConnection.getImage(image.tag).inspect()
-	).Id; // TODO Check if this is the latest image (or only local)
+	).Id; // TODO This is the local image, not the latest image
 
 	return image.digest !== latestImageDigest
 		? `${image.tag}@${latestImageDigest}`

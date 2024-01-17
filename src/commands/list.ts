@@ -39,7 +39,6 @@ export const list = async () => {
 		choices: services.map((c) => ({
 			name: chalk`${c.name}{yellow ${c.newImage ? " (Update available)" : ""}}`,
 			value: c,
-			description: `Image: ${c.image.tag}`,
 		})),
 		loop: false,
 	});
