@@ -56,10 +56,10 @@ jobs:
         with:
           name: docker-cli-updater
           path: src/docker-cli-updater
-      - name: Get version from package.json
-        id: get_version
-        run: |
-          echo ::set-output name=version::$(node -p "require('./package.json').version")
+      # - name: Get version from package.json
+      #   id: get_version
+      #   run: |
+      #     echo ::set-output name=version::$(node -p "require('./package.json').version")
       - name: Publish binaries in a Github release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
@@ -68,9 +68,9 @@ jobs:
             docker-cli-updater_bun.tar.gz
             src/docker-cli-updater
           # docker-cli-updater_node.tar.gz
-          name: ${{ steps.get_version.outputs.version }}
+          name: ${{ github.ref }}
           body: |
-            This is an automated release of docker-cli-updater v${{ steps.get_version.outputs.version }}.
+            This is an automated release of docker-cli-updater v${{ github.ref }}.
           draft: false
           prerelease: false
         # env:
