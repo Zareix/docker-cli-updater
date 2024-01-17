@@ -68,9 +68,9 @@ jobs:
             docker-cli-updater_bun.tar.gz
             src/docker-cli-updater
           # docker-cli-updater_node.tar.gz
-          name: ${{ github.ref }}
+          name: ${{ github.ref_name }}
           body: |
-            This is an automated release of docker-cli-updater v${{ github.ref }}.
+            This is an automated release of docker-cli-updater v${{ github.ref_name }}.
           draft: false
           prerelease: false
         # env:
