@@ -37,6 +37,14 @@ jobs:
         run: |
           tar -czvf docker-cli-updater_bun.tar.gz bin/bun
         #  tar -czvf docker-cli-updater_node.tar.gz bin/node
+      - name: Save artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-cli-updater
+          path: |
+            docker-cli-updater_bun.tar.gz
+            src/docker-cli-updater
+          # docker-cli-updater_node.tar.gz
       - name: Get version from package.json
         id: get_version
         run: |
