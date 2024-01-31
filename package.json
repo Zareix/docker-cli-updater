@@ -16,20 +16,18 @@
     "build:compile": "bun build --compile --outfile=./bin/docker-cli-updater src/index.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.5.2",
-    "@types/dockerode": "^3.3.23",
-    "bun-types": "latest"
+    "@biomejs/biome": "1.5.3",
+    "@types/bun": "^1.0.4"
   },
   "peerDependencies": {
     "typescript": "^5.3.3"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^11.1.0",
-    "@inquirer/prompts": "^3.3.0",
+    "@inquirer/prompts": "^3.3.2",
     "chalk": "^5.3.0",
     "chalk-template": "^1.1.0",
     "commander": "^11.1.0",
-    "dockerode": "^4.0.2",
     "ora": "^8.0.1"
   }
 }

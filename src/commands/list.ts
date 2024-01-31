@@ -6,19 +6,17 @@ import { dockerProvider } from "../docker";
 
 export const list = async () => {
 	const spinner = ora({
-		text: chalk`{blue Loading services...}`,
+		text: chalk`{blue Loading running containers...}`,
 	});
 	spinner.start();
-	const services = await Promise.all(
+
+	const containers = await Promise.all(
 		(await dockerProvider.listContainers()).map(async (c) => ({
 			...c,
-			newImage: await dockerProvider.getNewerImage({
-				tag: c.image.tag,
-				digest: c.image.digest,
-			}),
+			newImage: await dockerProvider.getNewerImage(c.image),
 		})),
 	);
-	services.sort((a, b) => {
+	containers.sort((a, b) => {
 		if (a.newImage && !b.newImage) {
 			return -1;
 		}
@@ -29,44 +27,50 @@ export const list = async () => {
 	});
 	spinner.stop();
 
-	if (services.length === 0) {
-		console.log(chalk`{red No services running}`);
-		return;
+	if (containers.length === 0) {
+		console.log(chalk`{red No container running}`);
+		process.exit(0);
 	}
 
-	const servicesToUpdate = await checkbox({
-		message: "Select a service to update",
-		choices: services.map((c) => ({
+	const containersToUpdate = await checkbox({
+		message: "Select a container to update",
+		choices: containers.map((c) => ({
 			name: chalk`${c.name}{yellow ${c.newImage ? " (Update available)" : ""}}`,
 			value: c,
 		})),
 		loop: false,
 	});
-	if (servicesToUpdate.length === 0) {
-		console.log(chalk`{red No service selected}`);
-		return;
+	if (containersToUpdate.length === 0) {
+		console.log(chalk`{red No container selected}`);
+		process.exit(0);
 	}
-	for (const service of servicesToUpdate) {
-		const spinner = ora(chalk`Updating service {yellow ${service.name}}...`);
+	for (const container of containersToUpdate) {
+		const spinner = ora(
+			chalk`Updating container {yellow ${container.name}}...`,
+		);
 		spinner.start();
-		const serviceUpdated = await dockerProvider.updateContainer(service.id);
-		switch (serviceUpdated.status) {
+		const containerUpdated = await dockerProvider.updateContainer(container.id);
+		switch (containerUpdated.status) {
 			case "updated":
-				spinner.succeed(chalk`Service {yellow ${service.name}} updated`);
+				spinner.succeed(chalk`Container {yellow ${container.name}} updated`);
 				break;
 			case "failed":
-				spinner.fail(chalk`Failed to update service {yellow ${service.name}}`);
+				spinner.fail(
+					chalk`Failed to update container {yellow ${container.name}}`,
+				);
 				break;
 			case "up-to-date":
-				spinner.info(chalk`Service {yellow ${service.name}} is up to date`);
+				spinner.info(chalk`Container {yellow ${container.name}} is up to date`);
 				break;
 		}
 	}
 
-	const updateAnother = await confirm({
-		message: "Update another service ?",
-	});
-	if (updateAnother) {
+	if (
+		await confirm({
+			message: "Update another container ?",
+		})
+	) {
 		await list();
 	}
+	process.exit(0);
 };

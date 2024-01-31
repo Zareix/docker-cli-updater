@@ -1,6 +1,7 @@
-import { readableStreamToText } from "bun";
 import { type DockerProvider } from "@/docker/providers";
-import { dockerConnection } from "@/docker";
+import { readableStreamToText } from "bun";
+
+const dockerConnection: any = {};
 
 const listServices: DockerProvider["listContainers"] = async () => {
 	return (await dockerConnection.listServices()).map((s) => ({
@@ -11,6 +12,9 @@ const listServices: DockerProvider["listContainers"] = async () => {
 				s.Spec?.TaskTemplate?.ContainerSpec?.Image.split("@")[0] ?? "Unknown",
 			digest:
 				s.Spec?.TaskTemplate?.ContainerSpec?.Image.split("@")[1] ?? "Unknown",
+			platform:
+				s.Spec?.TaskTemplate?.ContainerSpec?.Platform?.Architecture ??
+				"Unknown",
 		},
 	}));
 };

@@ -1,15 +1,9 @@
-import Docker from "dockerode";
+import { $ } from "bun";
 import { standalone, swarm } from "./providers";
 
-const dockerConnection = new Docker({
-	host: process.env.DOCKER_HOST,
-	port: process.env.DOCKER_PORT,
-});
-
-const isSwarm = await dockerConnection
-	.swarmInspect()
-	.then(() => true)
-	.catch(() => false);
+const isSwarm =
+	(await $`docker info --format '{{ .Swarm.LocalNodeState }}'`.text()) ===
+	"active";
 
 const provider = isSwarm ? swarm : standalone;
 const dockerProvider = {
@@ -17,4 +11,4 @@ const dockerProvider = {
 	isSwarm,
 };
 
-export { dockerConnection, dockerProvider };
+export { dockerProvider };

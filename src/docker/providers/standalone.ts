@@ -1,55 +1,63 @@
 import { type DockerProvider } from "@/docker/providers";
-import { dockerConnection } from "@/docker";
+import { $ } from "bun";
+
+const getImageInfo = async (imageTag: string) => {
+	const res =
+		await $`docker image inspect ${imageTag} --format '{{ .Id }}\t{{ .Os }}/{{ .Architecture }}'`.text();
+	const [digest, platform] = res.split("\t");
+	return {
+		tag: imageTag,
+		digest: digest,
+		platform: platform.replace("\n", ""),
+	};
+};
 
 const updateContainer: DockerProvider["updateContainer"] = async (
 	containerId,
 ) => {
-	const container = dockerConnection.getContainer(containerId);
-	const containerInfo = await container.inspect();
-
-	const newerImage = await getNewerImage({
-		tag: containerInfo.Config.Image,
-		digest: containerInfo.Image,
-	});
-
-	if (newerImage) {
-		console.log("updating", containerInfo.Config.Image, "to", newerImage);
-		try {
-			await container.update({
-				Image: newerImage,
-			});
-		} catch (e) {
-			return {
-				status: "failed",
-				reason: `Could not run container update: ${e}`,
-			};
-		}
-		return { status: "updated", newImage: newerImage };
-	}
-
-	return { status: "up-to-date" };
+	// const container = dockerConnection.getContainer(containerId);
+	// const containerInfo = await container.inspect();
+	const containerInfo =
+		await $`docker inspect ${containerId} --format '{{ json . }}'`.json();
+	console.log(containerInfo);
+	await $`docker pull ${containerInfo.Config.Image}`;
+	await $`docker stop ${containerId}`;
+	await $`docker rm ${containerId}`;
+	// const createdContainer = await dockerConnection.createContainer({
+	// 	...containerInfo.Config,
+	// 	name: containerInfo.Name,
+	// });
+	// TODO Create a new container with the same name and options
+	const id = await $`
+		docker 
+	`.text();
+	await $`docker start ${id}`;
+	return {
+		newImage: containerInfo.Config.Image,
+		status: "updated",
+	};
 };
 
-const listContainers: DockerProvider["listContainers"] = async () =>
-	Promise.all(
-		(await dockerConnection.listContainers()).map(async (c) => ({
-			id: c.Id,
-			name: c.Names[0].replace(/^\//, ""),
-			image: {
-				tag: c.Image,
-				digest: (await dockerConnection.getImage(c.Image).inspect()).Id,
-			},
-		})),
-	);
+const listContainers: DockerProvider["listContainers"] = async () => {
+	const res =
+		$`docker ps --no-trunc --format '{{ .ID }}\t{{ .Names }}\t{{ .Image }}'`.lines();
+	const containers: Awaited<ReturnType<DockerProvider["listContainers"]>> = [];
+	for await (const line of res) {
+		if (line === "") continue;
+		const [id, names, imageTag] = line.split("\t");
+		containers.push({
+			id,
+			name: names.split(",")[0],
+			image: await getImageInfo(imageTag),
+		});
+	}
+	return containers;
+};
 
 const getNewerImage: DockerProvider["getNewerImage"] = async (image) => {
-	const latestImageDigest = (
-		await dockerConnection.getImage(image.tag).inspect()
-	).Id; // TODO This is the local image, not the latest image
-
-	return image.digest !== latestImageDigest
-		? `${image.tag}@${latestImageDigest}`
-		: null;
+	const newDigest =
+		await $`./regctl image inspect --platform ${image.platform} ${image.tag} --format '{{ .Digest }}'`.text();
+	return newDigest === image.digest ? null : `${image.tag}@${newDigest}`;
 };
 
 export default {

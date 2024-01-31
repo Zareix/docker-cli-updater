@@ -17,6 +17,7 @@ type UpdateResult =
 type Image = {
 	tag: string;
 	digest: string;
+	platform: string;
 };
 
 type Container = {

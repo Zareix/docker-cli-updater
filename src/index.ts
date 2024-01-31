@@ -7,29 +7,31 @@ const program = new Command();
 
 program
 	.name("docker-cli-updater")
-	.description("CLI to update containers/services in a docker and docker-swarm")
+	.description(
+		"CLI to update containers/containers in a docker and docker-swarm",
+	)
 	.version("0.1.0");
 
 program
 	.command("update")
-	.description("Update services")
-	.option("-a, --all", "Update all containers/services")
+	.description("Update containers")
+	.option("-a, --all", "Update all containers/containers")
 	.option("-s, --silent", "Silent mode (don't use any logger)")
-	.argument("[container_name]", "Name of container/service to update")
-	.action(async (serviceName, options) => {
+	.argument("[container_name]", "Name of container/container to update")
+	.action(async (containerName, options) => {
 		if (options.all) {
-			if (serviceName) {
-				console.log("Ignoring service name");
+			if (containerName) {
+				console.log("Ignoring container name");
 			}
 			await updateAll(options);
 			return;
 		}
-		if (serviceName) {
-			await updateSingle(serviceName, options);
+		if (containerName) {
+			await updateSingle(containerName, options);
 			return;
 		}
-		if (!options.all && !serviceName) {
-			console.log(chalk.red("No service name specified"));
+		if (!options.all && !containerName) {
+			console.log(chalk.red("No container name specified"));
 		}
 	});
 
@@ -37,7 +39,7 @@ program
 	.command("list")
 	.alias("ls")
 	.description(
-		"Select a service in a list of all services running to update it",
+		"Select a container in a list of all containers running to update it",
 	)
 	.action(list);
 
