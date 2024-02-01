@@ -12,37 +12,49 @@ const getImageInfo = async (imageTag: string) => {
 	};
 };
 
-const updateContainer: DockerProvider["updateContainer"] = async (
-	containerId,
+const updateContainers: DockerProvider["updateContainers"] = async (
+	containerIds,
 ) => {
-	// const container = dockerConnection.getContainer(containerId);
-	// const containerInfo = await container.inspect();
-	const containerInfo =
-		await $`docker inspect ${containerId} --format '{{ json . }}'`.json();
-	console.log(containerInfo);
-	await $`docker pull ${containerInfo.Config.Image}`;
-	await $`docker stop ${containerId}`;
-	await $`docker rm ${containerId}`;
-	// const createdContainer = await dockerConnection.createContainer({
-	// 	...containerInfo.Config,
-	// 	name: containerInfo.Name,
-	// });
-	// TODO Create a new container with the same name and options
-	const id = await $`
-		docker 
-	`.text();
-	await $`docker start ${id}`;
+	const containersToUpdate = (await listContainers())
+		.filter((c) => containerIds.includes(c.id))
+		.map((c) => c.name)
+		.join(" ");
+
+	// TODO: Bind config.json
+	const { stderr: output } =
+		await $`docker run --name docker-updater_watchtower --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower -l JSON --cleanup --run-once $(echo $CONTAINERS)`
+			.env({
+				...process.env,
+				CONTAINERS: containersToUpdate,
+			})
+			.quiet();
+	console.log(output.toString());
+
+	for (const line of output.toString().split("\n")) {
+		try {
+			const parsed = JSON.parse(line);
+			if (!("msg" in parsed) || parsed.msg !== "Session done") {
+				continue;
+			}
+			return {
+				status: "done",
+				failed: parsed.Failed,
+				updated: parsed.Updated,
+				scanned: parsed.Scanned,
+			};
+		} catch (e) {}
+	}
 	return {
-		newImage: containerInfo.Config.Image,
-		status: "updated",
+		status: "failed",
+		reason: "Watchtower exited unexpectedly",
 	};
 };
 
 const listContainers: DockerProvider["listContainers"] = async () => {
-	const res =
+	const lines =
 		$`docker ps --no-trunc --format '{{ .ID }}\t{{ .Names }}\t{{ .Image }}'`.lines();
 	const containers: Awaited<ReturnType<DockerProvider["listContainers"]>> = [];
-	for await (const line of res) {
+	for await (const line of lines) {
 		if (line === "") continue;
 		const [id, names, imageTag] = line.split("\t");
 		containers.push({
@@ -57,11 +69,14 @@ const listContainers: DockerProvider["listContainers"] = async () => {
 const getNewerImage: DockerProvider["getNewerImage"] = async (image) => {
 	const newDigest =
 		await $`./regctl image inspect --platform ${image.platform} ${image.tag} --format '{{ .Digest }}'`.text();
+	console.log(image.tag, newDigest);
+
 	return newDigest === image.digest ? null : `${image.tag}@${newDigest}`;
 };
 
 export default {
-	updateContainer,
+	updateContainers,
+	updateContainer: async (containerId) => await updateContainers([containerId]),
 	listContainers,
 	getNewerImage,
 	containerType: "container" as const,

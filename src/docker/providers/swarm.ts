@@ -71,6 +71,12 @@ const getNewerImage: DockerProvider["getNewerImage"] = async (image) => {
 
 export default {
 	updateContainer: updateService,
+	updateContainers: async () => {
+		return {
+			status: "failed",
+			reason: "Not implemented",
+		};
+	},
 	listContainers: listServices,
 	getNewerImage,
 	containerType: "service" as const,

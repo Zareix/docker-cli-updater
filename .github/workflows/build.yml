@@ -17,45 +17,46 @@ jobs:
         uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
         with:
-          bun-version: 1.0.23
+          bun-version: 1.0.25
       - name: Restore cached dependencies
         uses: actions/cache/restore@v3
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+      
       - name: Install dependencies
         run: bun install --production
+      
       - name: Save dependencies cache
         uses: actions/cache/save@v3
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+
       - name: Remove cpu-features packages
         run: rm -rf node_modules/cpu-features
-      - name: Build binary for running in bun, node and others
+
+      - name: Build binary for running in bun and compiled
         run: |
           bun run build:bun
           bun run build:compile
-        #  bun run build:node
-      - name: Zip binaries for bun and node
+
+      - name: Zip binaries for bun
         run: |
           tar -czvf docker-cli-updater_bun.tar.gz bin/bun
-        #  tar -czvf docker-cli-updater_node.tar.gz bin/node
+
       - name: Save artifacts for bun
         uses: actions/upload-artifact@v4
         with:
           name: docker-cli-updater_bun.tar.gz
           path: docker-cli-updater_bun.tar.gz
-      # - name: Save artifacts for node
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: docker-cli-updater_node.tar.gz
-      #     path: docker-cli-updater_node.tar.gz
+      
       - name: Save artifacts for others
         uses: actions/upload-artifact@v4
         with:
           name: docker-cli-updater
           path: src/docker-cli-updater
+  
       - name: Publish binaries in a Github release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
@@ -63,7 +64,6 @@ jobs:
           files: |
             docker-cli-updater_bun.tar.gz
             src/docker-cli-updater
-          # docker-cli-updater_node.tar.gz
           body: |
             This is an automated release of docker-cli-updater ${{ github.ref_name }}.
           draft: false

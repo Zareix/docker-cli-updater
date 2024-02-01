@@ -1,5 +1,6 @@
 import { Command } from "@commander-js/extra-typings";
 import chalk from "chalk";
+import { root } from "./commands/root";
 import { list } from "./commands/list";
 import { updateAll, updateSingle } from "./commands/update";
 
@@ -10,7 +11,8 @@ program
 	.description(
 		"CLI to update containers/containers in a docker and docker-swarm",
 	)
-	.version("0.1.0");
+	.version("0.1.0")
+	.action(root);
 
 program
 	.command("update")

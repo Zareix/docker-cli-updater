@@ -14,6 +14,18 @@ type UpdateResult =
 			status: "up-to-date";
 	  };
 
+type MultiUpdateResult =
+	| {
+			status: "done";
+			failed: number;
+			updated: number;
+			scanned: number;
+	  }
+	| {
+			status: "failed";
+			reason: string;
+	  };
+
 type Image = {
 	tag: string;
 	digest: string;
@@ -29,6 +41,7 @@ type Container = {
 type DockerProvider = {
 	listContainers: () => Promise<Container[]>;
 	updateContainer: (id: string) => Promise<UpdateResult>;
+	updateContainers: (id: string[]) => Promise<MultiUpdateResult>;
 	getNewerImage: (image: Image) => Promise<string | null>;
 	containerType: string;
 };
