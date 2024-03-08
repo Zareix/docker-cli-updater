@@ -58,7 +58,7 @@ jobs:
           path: src/docker-cli-updater
   
       - name: Publish binaries in a Github release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
