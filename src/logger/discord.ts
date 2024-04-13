@@ -1,3 +1,5 @@
+import type { Logger } from "@/logger";
+
 const getCheckedText = (totalChecked: number) =>
 	totalChecked > 0 ? `Checked ${totalChecked} services` : "No services checked";
 
@@ -47,4 +49,4 @@ const singleUpdated = async (serviceName: string) => {
 	});
 };
 
-export { allUpdated, singleUpdated };
+export const discordLogger = { allUpdated, singleUpdated } satisfies Logger;
