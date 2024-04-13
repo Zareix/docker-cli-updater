@@ -11,7 +11,7 @@ const getUpdatedText = (updatedServices: string[]) =>
 const getFailedText = (failedUpdates: string[]) =>
 	failedUpdates.length > 0
 		? `Failed to update services: ${failedUpdates.join(", ")}`
-		: "All services updated";
+		: "No failed updates";
 
 const allUpdated = async (
 	totalChecked: number,

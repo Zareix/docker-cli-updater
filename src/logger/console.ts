@@ -1,14 +1,21 @@
 import type { Logger } from "@/logger";
+import chalk from "chalk-template";
 
 const allUpdated = (
 	totalChecked: number,
 	updatedServices: string[],
 	failedUpdates: string[],
 ) => {
+	console.log(chalk`Checked {blue ${totalChecked}} services`);
 	console.log(
-		`Checked ${totalChecked} services`,
-		`Updated services: ${updatedServices.join(", ")}`,
-		`Failed to update services: ${failedUpdates.join(", ")}`,
+		updatedServices.length > 0
+			? `Updated services: ${updatedServices.join(", ")}`
+			: "No container updated",
+	);
+	console.log(
+		failedUpdates.length > 0
+			? `Failed to update services: ${failedUpdates.join(", ")}`
+			: "No failed updates",
 	);
 };
 
