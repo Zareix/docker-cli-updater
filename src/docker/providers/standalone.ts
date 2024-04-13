@@ -1,4 +1,4 @@
-import { type DockerProvider } from "@/docker/providers";
+import type { DockerProvider } from "@/docker/providers";
 import { $ } from "bun";
 
 const getImageInfo = async (imageTag: string) => {
@@ -28,7 +28,6 @@ const updateContainers: DockerProvider["updateContainers"] = async (
 				CONTAINERS: containersToUpdate,
 			})
 			.quiet();
-	console.log(output.toString());
 
 	for (const line of output.toString().split("\n")) {
 		try {
@@ -60,10 +59,10 @@ const updateContainer: DockerProvider["updateContainer"] = async (
 				? {
 						status: "updated",
 						newImage: "unknown",
-				  }
+					}
 				: {
 						status: "up-to-date",
-				  };
+					};
 		case "failed":
 			return {
 				status: "failed",
@@ -89,9 +88,13 @@ const listContainers: DockerProvider["listContainers"] = async () => {
 };
 
 const getNewerImage: DockerProvider["getNewerImage"] = async (image) => {
-	const newDigest =
-		await $`./regctl image inspect --platform ${image.platform} ${image.tag} --format '{{ .Digest }}'`.text();
-	return newDigest === image.digest ? null : `${image.tag}@${newDigest}`;
+	try {
+		const newDigest =
+			await $`./regctl image inspect --platform ${image.platform} ${image.tag} --format '{{ .Digest }}'`.text();
+		return newDigest === image.digest ? null : `${image.tag}@${newDigest}`;
+	} catch {
+		return null;
+	}
 };
 
 export default {

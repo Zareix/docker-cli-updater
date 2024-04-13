@@ -5,7 +5,7 @@ import { logger } from "../logger";
 
 const update = async (serviceName: string, serviceId: string) => {
 	const status = ora({
-		text: chalk`Checking {yellow ${serviceName}}...`,
+		text: chalk`Updating {yellow ${serviceName}}...`,
 	});
 	status.start();
 	const serviceUpdated = await dockerProvider.updateContainer(serviceId);
@@ -55,7 +55,9 @@ export const updateAll = async (options: UpdateOptions) => {
 	}
 
 	if (!options.silent)
-		await logger().allUpdated(updatedServices, failedUpdates);
+		await logger().allUpdated(services.length, updatedServices, failedUpdates);
+
+	process.exit(0);
 };
 
 export const updateSingle = async (
@@ -72,4 +74,5 @@ export const updateSingle = async (
 	await update(serviceName, serviceId);
 
 	if (!options.silent) await logger().singleUpdated(serviceName);
+	process.exit(0);
 };
