@@ -179,3 +179,4 @@ regctl
 test
 docker-cli-updater
 bin
+*.bun-build

@@ -12,6 +12,7 @@ program
 		"CLI to update containers/containers in a docker and docker-swarm",
 	)
 	.version("0.2.0")
+	.option("-s, --skip-check", "Skip check of new version", false)
 	.action(root);
 
 program
@@ -40,9 +41,7 @@ program
 program
 	.command("list")
 	.alias("ls")
-	.description(
-		"Select a container in a list of all containers running to update it",
-	)
+	.description("List containers that have an update available")
 	.action(list);
 
 await program.parseAsync();

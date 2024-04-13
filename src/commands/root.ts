@@ -4,7 +4,15 @@ import chalk from "chalk-template";
 import ora from "ora";
 import { dockerProvider } from "../docker";
 
-export const root = async () => {
+type RootOptions = {
+	skipCheck: boolean;
+};
+
+export const root = async (options: RootOptions) => {
+	if (options.skipCheck) {
+		console.log(chalk`{yellow Skipping check of new version}`);
+	}
+
 	let spinner = ora({
 		text: chalk`{blue Loading running containers...}`,
 	});
@@ -13,7 +21,9 @@ export const root = async () => {
 	const containers = await Promise.all(
 		(await dockerProvider.listContainers()).map(async (c) => ({
 			...c,
-			newImage: await dockerProvider.getNewerImage(c.image),
+			newImage: options.skipCheck
+				? null
+				: await dockerProvider.getNewerImage(c.image),
 		})),
 	);
 	containers.sort((a, b) => {
@@ -68,7 +78,7 @@ export const root = async () => {
 			message: "Update another container ?",
 		})
 	) {
-		await root();
+		await root(options);
 	}
 	process.exit(0);
 };

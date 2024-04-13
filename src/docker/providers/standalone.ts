@@ -3,8 +3,8 @@ import { $ } from "bun";
 
 const getImageInfo = async (imageTag: string) => {
 	const res =
-		await $`docker image inspect ${imageTag} --format '{{ .Id }}\t{{ .Os }}/{{ .Architecture }}'`.text();
-	const [digest, platform] = res.split("\t");
+		await $`docker image inspect ${imageTag} --format '{{ .Id }}:::{{ .Os }}/{{ .Architecture }}'`.text();
+	const [digest, platform] = res.split(":::");
 	return {
 		tag: imageTag,
 		digest: digest,
@@ -50,6 +50,28 @@ const updateContainers: DockerProvider["updateContainers"] = async (
 	};
 };
 
+const updateContainer: DockerProvider["updateContainer"] = async (
+	containerId,
+) => {
+	const updateRes = await updateContainers([containerId]);
+	switch (updateRes.status) {
+		case "done":
+			return updateRes.updated > 0
+				? {
+						status: "updated",
+						newImage: "unknown",
+				  }
+				: {
+						status: "up-to-date",
+				  };
+		case "failed":
+			return {
+				status: "failed",
+				reason: updateRes.reason,
+			};
+	}
+};
+
 const listContainers: DockerProvider["listContainers"] = async () => {
 	const lines =
 		$`docker ps --no-trunc --format '{{ .ID }}\t{{ .Names }}\t{{ .Image }}'`.lines();
@@ -69,14 +91,12 @@ const listContainers: DockerProvider["listContainers"] = async () => {
 const getNewerImage: DockerProvider["getNewerImage"] = async (image) => {
 	const newDigest =
 		await $`./regctl image inspect --platform ${image.platform} ${image.tag} --format '{{ .Digest }}'`.text();
-	console.log(image.tag, newDigest);
-
 	return newDigest === image.digest ? null : `${image.tag}@${newDigest}`;
 };
 
 export default {
 	updateContainers,
-	updateContainer: async (containerId) => await updateContainers([containerId]),
+	updateContainer,
 	listContainers,
 	getNewerImage,
 	containerType: "container" as const,
