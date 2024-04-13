@@ -11,7 +11,7 @@ program
 	.description(
 		"CLI to update containers/containers in a docker and docker-swarm",
 	)
-	.version("0.2.0")
+	.version("0.3.0")
 	.option("-s, --skip-check", "Skip check of new version", false)
 	.action(root);
 

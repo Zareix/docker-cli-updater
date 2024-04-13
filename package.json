@@ -2,7 +2,7 @@
   "name": "docker-cli-updater",
   "module": "index.ts",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "scripts": {
     "start": "bun run src/index.ts",
     "list": "bun run src/index.ts list",
