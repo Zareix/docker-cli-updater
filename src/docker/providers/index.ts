@@ -1,5 +1,4 @@
 import standalone from "./standalone";
-import swarm from "./swarm";
 
 type UpdateResult =
 	| {
@@ -46,4 +45,4 @@ type DockerProvider = {
 	containerType: string;
 };
 
-export { swarm, standalone, type DockerProvider };
+export { standalone, type DockerProvider };

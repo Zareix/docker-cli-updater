@@ -1,5 +1,5 @@
-import { discordLogger } from "./discord";
 import { consoleLogger } from "./console";
+import { discordLogger } from "./discord";
 
 export type Logger = {
 	allUpdated: (

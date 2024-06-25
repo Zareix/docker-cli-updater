@@ -27,14 +27,17 @@ type UpdateOptions = {
 };
 
 export const updateAll = async (options: UpdateOptions) => {
-	const updatedServices = [];
-	const failedUpdates = [];
-
+	const status = ora({
+		text: chalk`Searching services...`,
+	});
+	status.start();
 	const services = (await dockerProvider.listContainers()).sort(
 		(a, b) => a.name.localeCompare(b.name) ?? 0,
 	);
+	status.succeed(chalk`Found {blue ${services.length}} services`);
 
-	console.log(chalk`Found {blue ${services.length}} services`);
+	const updatedServices = [];
+	const failedUpdates = [];
 	for (const service of services) {
 		const serviceName = service.name;
 		if (!serviceName) {
