@@ -42,6 +42,7 @@ type DockerProvider = {
 	updateContainer: (id: string) => Promise<UpdateResult>;
 	updateContainers: (id: string[]) => Promise<MultiUpdateResult>;
 	getNewerImage: (image: Image) => Promise<string | null>;
+	getContainerId: (name: string) => Promise<string | null>;
 	containerType: string;
 };
 

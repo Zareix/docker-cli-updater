@@ -87,6 +87,18 @@ const listContainers: DockerProvider["listContainers"] = async () => {
 	return containers;
 };
 
+const getContainerId: DockerProvider["getContainerId"] = async (
+	name: string,
+) => {
+	const lines =
+		$`docker ps --no-trunc --format '{{ .ID }}' --filter name=${name}`.lines();
+	for await (const line of lines) {
+		if (line === "") continue;
+		return line;
+	}
+	return null;
+};
+
 const getNewerImage: DockerProvider["getNewerImage"] = async (image) => {
 	try {
 		const newDigest =
@@ -102,5 +114,6 @@ export default {
 	updateContainer,
 	listContainers,
 	getNewerImage,
+	getContainerId,
 	containerType: "container" as const,
 } satisfies DockerProvider;

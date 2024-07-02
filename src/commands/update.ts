@@ -59,23 +59,18 @@ export const updateAll = async (options: UpdateOptions) => {
 
 	if (!options.silent)
 		await logger().allUpdated(services.length, updatedServices, failedUpdates);
-
-	process.exit(0);
 };
 
 export const updateSingle = async (
-	serviceName: string,
+	containerName: string,
 	options: UpdateOptions,
 ) => {
-	const serviceId = (await dockerProvider.listContainers()).find(
-		(s) => s.name === serviceName,
-	)?.id;
-	if (!serviceId) {
-		console.log(chalk`{red Service {yellow ${serviceName}} not found} `);
+	const containerId = await dockerProvider.getContainerId(containerName);
+	if (!containerId) {
+		console.log(chalk`{red Container {yellow ${containerName}} not found} `);
 		return;
 	}
-	await update(serviceName, serviceId);
+	await update(containerName, containerId);
 
-	if (!options.silent) await logger().singleUpdated(serviceName);
-	process.exit(0);
+	if (!options.silent) await logger().singleUpdated(containerName);
 };
