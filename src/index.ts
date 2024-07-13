@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { list } from "./commands/list";
 import { root } from "./commands/root";
 import { updateAll, updateSingle } from "./commands/update";
+import { env } from "@/env";
 
 const program = new Command();
 

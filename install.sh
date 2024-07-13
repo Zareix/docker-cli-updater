@@ -6,6 +6,8 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
+mv .env .env.bak
+
 # Install the required packages
 echo ">> Installing the required packages..."
 bun install
@@ -25,6 +27,8 @@ if [ -f /usr/local/bin/docker-updater ]; then
   rm /usr/local/bin/docker-updater
 fi
 ln -s "$(pwd)/bin/bun/index.js" /usr/local/bin/docker-updater
+
+mv .env.bak .env
 
 # Display the success message
 echo ">> The application has been installed successfully."

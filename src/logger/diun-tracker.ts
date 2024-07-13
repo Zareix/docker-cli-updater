@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import type { Logger } from "@/logger";
 
 const allUpdated = async (
@@ -5,10 +6,10 @@ const allUpdated = async (
 	updatedServices: string[],
 	_failedUpdates: string[],
 ) => {
-	if (!process.env.DIUN_TRACKER_URL) {
+	if (!env.DIUN_TRACKER_URL) {
 		return;
 	}
-	await fetch(`${process.env.DIUN_TRACKER_URL}/api/updates`, {
+	await fetch(`${env.DIUN_TRACKER_URL}/api/updates`, {
 		method: "PATCH",
 		headers: {
 			"Content-Type": "application/json",
@@ -18,10 +19,10 @@ const allUpdated = async (
 };
 
 const singleUpdated = async (serviceName: string) => {
-	if (!process.env.DIUN_TRACKER_URL) {
+	if (!env.DIUN_TRACKER_URL) {
 		return;
 	}
-	await fetch(`${process.env.DIUN_TRACKER_URL}/api/updates`, {
+	await fetch(`${env.DIUN_TRACKER_URL}/api/updates`, {
 		method: "PATCH",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ containerNames: [serviceName] }),

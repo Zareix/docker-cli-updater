@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import type { Logger } from "@/logger";
 
 const getCheckedText = (totalChecked: number) =>
@@ -18,10 +19,10 @@ const allUpdated = async (
 	updatedServices: string[],
 	failedUpdates: string[],
 ) => {
-	if (!process.env.DISCORD_WEBHOOK_URL) {
+	if (!env.DISCORD_WEBHOOK_URL) {
 		return;
 	}
-	await fetch(process.env.DISCORD_WEBHOOK_URL, {
+	await fetch(env.DISCORD_WEBHOOK_URL, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -35,10 +36,10 @@ const allUpdated = async (
 };
 
 const singleUpdated = async (serviceName: string) => {
-	if (!process.env.DISCORD_WEBHOOK_URL) {
+	if (!env.DISCORD_WEBHOOK_URL) {
 		return;
 	}
-	await fetch(process.env.DISCORD_WEBHOOK_URL, {
+	await fetch(env.DISCORD_WEBHOOK_URL, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",

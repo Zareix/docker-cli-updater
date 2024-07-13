@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import { consoleLogger } from "./console";
 import { discordLogger } from "./discord";
 import { diunTrackerLogger } from "./diun-tracker";
@@ -13,10 +14,10 @@ export type Logger = {
 
 const logger = (): Logger => {
 	const allLoggers: Logger[] = [];
-	if (process.env.DISCORD_WEBHOOK_URL) {
+	if (env.DISCORD_WEBHOOK_URL) {
 		allLoggers.push(discordLogger);
 	}
-	if (process.env.DIUN_TRACKER_URL) {
+	if (env.DIUN_TRACKER_URL) {
 		allLoggers.push(diunTrackerLogger);
 	}
 	allLoggers.push(consoleLogger);
