@@ -10,11 +10,11 @@ mv .env .env.bak
 
 # Install the required packages
 echo ">> Installing the required packages..."
-bun install
+bun install >/dev/null
 
 # Build the application
 echo ">> Building the application..."
-bun build:bun
+bun build:bun >/dev/null
 
 # Add the shebang
 echo "#!/usr/bin/env bun" | cat - bin/bun/index.js >temp && mv temp bin/bun/index.js

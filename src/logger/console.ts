@@ -20,7 +20,7 @@ const allUpdated = (
 };
 
 const singleUpdated = (serviceName: string) => {
-	console.log(`Updated service: ${serviceName}`);
+	// console.log(`Updated service: ${serviceName}`);
 };
 
 export const consoleLogger = {
