@@ -8,6 +8,9 @@ type ConfigFile = {
 		discordWebhookUrl?: string;
 		diunTrackerUrl?: string;
 	};
+	regctl?: {
+		path?: string;
+	};
 	docker?: {
 		hosts?: Record<string, string>;
 	};
@@ -25,6 +28,7 @@ export const env = createEnv({
 			(hosts) => JSON.parse(hosts as string),
 			z.record(z.string()),
 		),
+		REGCTL_PATH: z.string().optional(),
 
 		DOCKER_HOST: z.string().optional(),
 	},
@@ -35,6 +39,7 @@ export const env = createEnv({
 		DIUN_TRACKER_URL:
 			process.env.DIUN_TRACKER_URL ?? configFile.logger?.diunTrackerUrl,
 		DOCKER_HOSTS: JSON.stringify(configFile.docker?.hosts) ?? "",
+		REGCTL_PATH: process.env.REGCTL_PATH ?? configFile.regctl?.path,
 
 		DOCKER_HOST: process.env.DOCKER_HOST,
 	},

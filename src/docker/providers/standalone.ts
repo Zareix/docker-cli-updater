@@ -1,5 +1,5 @@
 import type { DockerProvider } from "@/docker/providers";
-import { $ } from "bun";
+import { $, env } from "bun";
 
 const getImageInfo = async (imageTag: string) => {
 	const res =
@@ -100,9 +100,12 @@ const getContainerId: DockerProvider["getContainerId"] = async (
 };
 
 const getNewerImage: DockerProvider["getNewerImage"] = async (image) => {
+	if (!env.REGCTL_PATH) {
+		return null;
+	}
 	try {
 		const newDigest =
-			await $`./regctl image inspect --platform ${image.platform} ${image.tag} --format '{{ .Digest }}'`.text();
+			await $`${env.REGCTL_PATH} image inspect --platform ${image.platform} ${image.tag} --format '{{ .Digest }}'`.text();
 		return newDigest === image.digest ? null : `${image.tag}@${newDigest}`;
 	} catch {
 		return null;
