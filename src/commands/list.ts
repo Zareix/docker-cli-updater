@@ -1,8 +1,10 @@
 import chalk from "chalk-template";
 import ora from "ora";
 import { dockerProvider } from "../docker";
+import { chooseDockerEnv } from "@/env";
 
 export const list = async () => {
+	await chooseDockerEnv();
 	const spinner = ora({
 		text: chalk`{blue Loading running containers...}`,
 	});

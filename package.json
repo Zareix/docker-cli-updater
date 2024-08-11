@@ -9,7 +9,8 @@
     "update": "bun run src/index.ts update",
     "test:standalone": "bun test standalone --preload ./tests/setup-standalone.ts",
     "test": "bun run test:standalone",
-    "check": "bunx @biomejs/biome check --apply src/ && bun run test",
+    "biome": "bunx @biomejs/biome check --write src/",
+    "check": "bun run biome && bun run test",
     "build:bun": "bun build --target=bun --outdir=./bin/bun --minify src/index.ts",
     "build:compile": "bun build --compile --minify --outfile=./bin/docker-cli-updater src/index.ts"
   },

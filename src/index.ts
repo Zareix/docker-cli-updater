@@ -3,6 +3,7 @@ import chalk from "chalk";
 import { list } from "./commands/list";
 import { root } from "./commands/root";
 import { updateAll, updateSingle } from "./commands/update";
+import { chooseDockerEnv } from "@/env";
 
 const program = new Command();
 
@@ -20,6 +21,7 @@ program
 	.option("-s, --silent", "Silent mode (don't use any logger)")
 	.argument("[container_name...]", "Name of container(s) to update")
 	.action(async (containersName, options) => {
+		await chooseDockerEnv();
 		if (options.all) {
 			if (containersName) {
 				console.log("Ignoring container name");
@@ -27,7 +29,7 @@ program
 			await updateAll(options);
 			process.exit(0);
 		}
-		if (containersName) {
+		if (containersName && containersName.length > 0) {
 			console.log(
 				chalk.yellow(
 					`Updating following containers: ${containersName.join(", ")}`,
@@ -38,7 +40,7 @@ program
 			}
 			process.exit(0);
 		}
-		if (!options.all && !containersName) {
+		if (!options.all && (!containersName || containersName.length === 0)) {
 			console.log(chalk.red("No container name specified"));
 		}
 	});

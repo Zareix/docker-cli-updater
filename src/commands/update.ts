@@ -2,6 +2,7 @@ import chalk from "chalk-template";
 import ora from "ora";
 import { dockerProvider } from "../docker";
 import { logger } from "../logger";
+import { chooseDockerEnv } from "@/env";
 
 const update = async (serviceName: string, serviceId: string) => {
 	const status = ora({

@@ -1,5 +1,5 @@
-import { confirm } from "@inquirer/prompts";
-import { checkbox } from "@inquirer/prompts";
+import { chooseDockerEnv } from "@/env";
+import { checkbox, confirm } from "@inquirer/prompts";
 import chalk from "chalk-template";
 import ora from "ora";
 import { dockerProvider } from "../docker";
@@ -9,6 +9,7 @@ type RootOptions = {
 };
 
 export const root = async (options: RootOptions) => {
+	await chooseDockerEnv();
 	if (options.skipCheck) {
 		console.log(chalk`{yellow Skipping check of new version}`);
 	}
