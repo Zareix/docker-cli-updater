@@ -19,9 +19,10 @@ program
 	.description("Update containers")
 	.option("-a, --all", "Update all containers")
 	.option("-s, --silent", "Silent mode (don't use any logger)")
+	.option("--host <host>", "Docker host to use")
 	.argument("[container_name...]", "Name of container(s) to update")
 	.action(async (containersName, options) => {
-		await chooseDockerEnv();
+		await chooseDockerEnv(options.host);
 		if (options.all) {
 			if (containersName) {
 				console.log("Ignoring container name");

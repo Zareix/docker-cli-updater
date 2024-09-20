@@ -45,8 +45,15 @@ export const env = createEnv({
 	},
 });
 
-export const chooseDockerEnv = async () => {
-	if (env.DOCKER_HOST || Object.keys(env.DOCKER_HOSTS).length === 0) {
+export const chooseDockerEnv = async (selectedHost?: string | undefined) => {
+	if (Object.keys(env.DOCKER_HOSTS).length === 0) {
+		return;
+	}
+	if (selectedHost) {
+		process.env.DOCKER_HOST = env.DOCKER_HOSTS[selectedHost];
+		return;
+	}
+	if (env.DOCKER_HOST) {
 		return;
 	}
 	const host = await select({
