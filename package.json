@@ -15,7 +15,7 @@
     "build:compile": "bun build --compile --minify --outfile=./bin/docker-cli-updater src/index.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.8.3",
+    "@biomejs/biome": "1.9.4",
     "@types/bun": "^1.1.6"
   },
   "peerDependencies": {
